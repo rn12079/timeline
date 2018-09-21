@@ -1,0 +1,163 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Timeline | Basic demo</title>
+  <style>
+    body, html {
+      font-family: arial, sans-serif;
+      font-size: 8pt;
+    }
+
+    #visualization {
+      box-sizing: border-box;
+      width: 100%;
+      height: 300px;
+    }
+
+    .vis-item.postislam{
+      background-color: #86FF8A;
+    }
+  </style>
+
+  <!-- note: moment.js must be loaded before vis.js, else vis.js uses its embedded version of moment.js -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
+  <script src="dist/vis.js"></script>
+  <link href="dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+  
+</head>
+<body onload="dataready()">
+
+<p>
+  A basic timeline. You can move and zoom the timeline, and select items.
+</p>
+<button onclick="visualze()">visualize</button>
+<div id="visualization"></div>
+
+<script type="text/javascript">
+  // DOM element where the Timeline will be attached
+  var eraset;
+  var pointset;
+  var warset;
+  var container = document.getElementById('visualization');
+  
+function dataready(){
+  gen_dataset();
+  gen_pointset();
+  gen_warset();
+}
+
+
+function gen_dataset(){
+  console.log('in era_dataset');
+  var xhr;
+
+  if(window.XMLHttpRequest){
+    xhr=new XMLHttpRequest();
+  } 
+else if (window.ActiveXObject) { // IE 8 and older  
+  xhr = new ActiveXObject("Microsoft.XMLHTTP");  
+} 
+
+xhr.open("POST","retrieve_rows_jq.php",true);
+xhr.send();
+xhr.onreadystatechange = function (){
+  if(this.readyState==4&&this.status == 200) {
+    eraset = JSON.parse(xhr.responseText);
+    console.log(eraset);
+
+  }
+  
+}
+
+}
+
+function gen_pointset(){
+  console.log('in politic_dataset');
+  var xhr;
+
+  if(window.XMLHttpRequest){
+    xhr=new XMLHttpRequest();
+  } 
+else if (window.ActiveXObject) { // IE 8 and older  
+  xhr = new ActiveXObject("Microsoft.XMLHTTP");  
+} 
+
+xhr.open("POST","retrieve_rows_points.php",true);
+xhr.send();
+xhr.onreadystatechange = function (){
+  if(this.readyState==4&&this.status == 200) {
+    pointset = JSON.parse(xhr.responseText);
+    console.log(pointset);
+
+  }
+  
+}
+
+}
+
+function gen_warset(){
+  console.log('in war_dataset');
+  var xhr;
+
+  if(window.XMLHttpRequest){
+    xhr=new XMLHttpRequest();
+  } 
+else if (window.ActiveXObject) { // IE 8 and older  
+  xhr = new ActiveXObject("Microsoft.XMLHTTP");  
+} 
+
+xhr.open("POST","retrieve_rows_wars.php",true);
+xhr.send();
+xhr.onreadystatechange = function (){
+  if(this.readyState==4&&this.status == 200) {
+    warset = JSON.parse(xhr.responseText);
+    console.log(pointset);
+
+  }
+  
+}
+
+}
+            
+
+  // Create a DataSet (allows two way data-binding)
+  function visualze(){
+
+    console.log('in visualize');
+  var items = new vis.DataSet();
+  
+  var groups = new vis.DataSet([{
+     
+        id: '3', content:'era', subgroupStack: {'era':false} , style:"color:red; background-color:pink;"
+    },{
+       id: '2', content:'events', subgroupStack: true },
+       {id: '1', content:'wars', subgroupStack: true }
+    
+    ]);
+
+  items.add(eraset);
+  items.add(pointset);
+  items.add(warset);
+
+  // Configuration for the Timeline
+     var options = {
+        // orientation:'top'
+        start: '000560-01-10',
+        end: '000623-01-01',
+        //editable: false,
+        stack: true,
+        stackSubgroups: true
+    };
+
+  
+
+  // Create a Timeline
+  var timeline = new vis.Timeline(container, items, groups, options);
+  console.log(groups.get(2).subgroupStack);
+}
+
+</script>
+</body>
+</html>
